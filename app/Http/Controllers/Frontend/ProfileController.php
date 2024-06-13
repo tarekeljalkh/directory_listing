@@ -1,27 +1,28 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\ProfileUpdateRequest;
-use App\Models\User;
+use App\Http\Requests\Frontend\ProfileUpdateRequest;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Redirect;
 
 class ProfileController extends Controller
 {
     use FileUploadTrait;
 
-    function index() : View {
+    function index() : View
+    {
         $user = Auth::user();
-        return view('admin.profile.index', compact('user'));
+        return view('frontend.dashboard.profile.index', compact('user'));
     }
 
-    function update(ProfileUpdateRequest $request) : RedirectResponse {
-
+    function update(ProfileUpdateRequest $request) : RedirectResponse
+    {
         $avatarPath = $this->uploadImage($request, 'avatar', $request->old_avatar);
         $bannerPath = $this->uploadImage($request, 'banner', $request->old_banner);
 
@@ -46,9 +47,9 @@ class ProfileController extends Controller
         return redirect()->back();
     }
 
-    function passwordUpdate(Request $request) : RedirectResponse
-    {
+    function updatePassword(Request $request) : RedirectResponse {
         $request->validate([
+            'current_password' => ['required', 'current_password'],
             'password' => ['required', 'min:5', 'confirmed']
         ]);
 
@@ -56,7 +57,7 @@ class ProfileController extends Controller
         $user->password = bcrypt($request->password);
         $user->save();
 
-        toastr()->success('Updated Successfully!');
+        toastr()->success('Password Updated Successfully!');
 
         return redirect()->back();
     }
